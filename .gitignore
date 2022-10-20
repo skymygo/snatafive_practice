@@ -10,3 +10,11 @@ logs
 __pycache__/
 *.py[cod]
 *$py.class
+
+### DB ###
+db.sqlite3
+migrations
+
+### secret ###
+secret
+
