@@ -16,10 +16,9 @@ class User(AbstractUser):
         db_table = 'user'
 
 class Message(models.Model):
-    type = models.CharField(max_length=20)
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender_message_set')
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver_message_set')
-    is_confirmed = models.BooleanField(verbose_name='리뷰 확인 여부', default=False)
+    contents = models.CharField(verbose_name='메시지 내용', max_length=500)
     acc_type = models.IntegerField(verbose_name='악세사리 타입')
 
     class Meta:
