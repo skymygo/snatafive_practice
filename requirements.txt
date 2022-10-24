@@ -6,4 +6,4 @@ djangorestframework
 markdown
 django-filter
 requests
-django-test-plus
+django-allauth
