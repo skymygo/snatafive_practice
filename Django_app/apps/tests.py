@@ -1,64 +1,49 @@
 from django.contrib.auth.models import User
-from test_plus.test import TestCase
-from apps.models import User, Message
+from django.test import TestCase
+from apps.models import User, RollingPaperBoard, Message
 
-class MessageListViewTestCase(TestCase):
+import datetime
+
+class MainScenarioTest(TestCase):
     def setUp(self) -> None:
         super().setUp()
         # User
-        self.사용자A = User.objects.create()
-        self.사용자B = User.objects.create()
-        self.사용자C = User.objects.create()
-        self.사용자D = User.objects.create()
-        self.사용자E = User.objects.create()
+        self.사용자A = User.objects.create(username='사용자A')
+        self.사용자B = User.objects.create(username='사용자B')
 
-    def test_사용자A의_링크를_조회한다(self):
+    def 롤링페이퍼_생성(self, title, target_date=None):
+        if target_date is None:
+            target_date = datetime.datetime.now()
+            target_date += datetime.timedelta(days=100)
+        res = self.client.post(
+            path='/rolling_paper',
+            data={'title': title, }
+        )
+
+        return res
+
+    def test_사용자A가_롤링페이퍼보드를_만든다(self):
+        self.client.force_login(self.사용자A)
+
+        test_title = '테스트 타이틀'
+
+        res = self.롤링페이퍼_생성(test_title)
+        self.assertEqual(res.status_code, 201)
+        data = res.json()
+        self.assertIsNotNone(data['id'])
+        self.assertEqual(test_title, data['title'])
+
+        rolling_paper = RollingPaperBoard.objects.get(pk=data["id"])
+        self.assertEqual(data['id'], rolling_paper.id)
+        self.assertEqual(data['title'], rolling_paper.title)
+
+        return rolling_paper
+
+    def test_사용자A가_롤링페이퍼보드를_조회한다(self):
         pass
 
-    def test_사용자A의_링크로_사용자B가_접속하여_메시지를_보낸다(self):
+    def test_사용자A가_롤링페이퍼보드를_6개_만든다(self):
         pass
 
-    def test_사용자A에게_도착한_메시지를_확인한다(self):
-        pass
-
-    def test_사용자A에게_사용자B로_메시지를_보내고_사용자B로_확인한다(self):
-        pass
-
-    def test_사용자A에게_사용자B로_메시지를_보내고_사용자C로_확인한다(self):
-        pass
-
-    def test_사용자A에게_다량의_메시지를_보내고_확인한다(self):
-        pass
-
-    def test_사용자A에게_사용자B로_메시지를_보내고_사용자B로_수정한다(self):
-        pass
-
-    def test_사용자A에게_사용자B로_메시지를_보내고_사용자C로_수정한다(self):
-        pass
-
-    def test_사용자A에게_사용자B로_메시지를_보내고_삭제한다(self):
-        pass
-
-    def test_사용자A에게_사용자B로_메시지를_보내고_사용자A가_답신한다(self):
-        pass
-
-    def test_사용자A에게_사용자B로_메시지를_보내고_사용자A가_지정일이_지난_시점으로_메시지를_확인한다(self):
-        pass
-
-    def test_사용자A가_회원_탈퇴한다(self):
-        pass
-
-    def test_사용자A에게_사용자B로_메시지를_보내고_사용자A가_회원_탈퇴한다(self):
-        pass
-
-    def test_사용자A에게_사용자B로_메시지를_보내고_사용자A가_회원_탈퇴한_뒤_사용자B로_메시지를_확인한다(self):
-        pass
-
-    def test_사용자A에게_사용자B로_메시지를_보내고_사용자B가_회원_탈퇴한다(self):
-        pass
-
-    def test_사용자A에게_사용자B로_메시지를_보내고_사용자B가_회원_탈퇴한_뒤_사용자A로_메시지를_확인한다(self):
-        pass
-
-    def test_사용자A에게_사용자B로_메시지를_보내고_사용자A가_회원_탈퇴_후_복구_요청한다(self):
+    def test_사용자A가_롤링페이퍼보드를_4개_만들고_조회한다(self):
         pass
