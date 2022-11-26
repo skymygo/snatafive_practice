@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from apps.models import User, Message, RollingPaperBoard
-import datetime
+from django.db import transaction
+import hashlib, datetime, time
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,6 +21,13 @@ class RollingPaperBoardSerializer(serializers.ModelSerializer):
     created_on = serializers.DateTimeField(read_only=True)
     updated_on = serializers.DateTimeField(read_only=True)
     opened_at = serializers.DateTimeField()
+    link = serializers.HiddenField(default=None)
+
+    def create(self, validated_data):
+        hash_str = f"{validated_data['owner']}_{validated_data['title']}_{time.time()}".encode('utf-8')
+        validated_data['link'] = hashlib.sha256(hash_str).hexdigest()
+        rollingpaper = RollingPaperBoard.objects.create(**validated_data)
+        return rollingpaper
 
     class Meta:
         model = RollingPaperBoard
@@ -30,7 +38,8 @@ class RollingPaperBoardSerializer(serializers.ModelSerializer):
             'owner',
             'opened_at',
             'created_on',
-            'updated_on'
+            'updated_on',
+            'link'
         ]
 
 class MessageSerializer(serializers.ModelSerializer):

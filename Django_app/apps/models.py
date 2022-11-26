@@ -24,6 +24,7 @@ class RollingPaperBoard(models.Model):
     created_on = models.DateTimeField('등록일자', auto_now_add=True)
     updated_on = models.DateTimeField('수정일자', auto_now=True)
     opened_at = models.DateTimeField('공개일자')
+    link = models.CharField('공유 링크', max_length=30)
 
     class Meta:
         db_table = 'rolling_paper_board'
