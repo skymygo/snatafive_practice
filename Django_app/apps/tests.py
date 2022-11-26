@@ -47,13 +47,14 @@ class MainScenarioTest(TestCase):
 
         return res
 
-    def 메시지_생성(self, link, message):
+    def 메시지_생성(self, link, contents, acc_type=0):
 
         res = self.client.post(
             path='/message/',
             data={
                 'link': link,
-                'message': message
+                'contents': contents,
+                'acc_type': acc_type,
             }
         )
 
@@ -112,7 +113,7 @@ class MainScenarioTest(TestCase):
         res = self.메시지_생성(rolling_paper_board_link, test_message)
         self.assertEqual(res.status_code, 201)
         res_data = res.json()
-        self.assertEqual(res_data['contents'] == test_message)
+        self.assertEqual(res_data['contents'], test_message)
         pass
 
     def test_사용자A가_사용자B가_남긴_메시지를_확인한다__상세조회__예정일전(self):

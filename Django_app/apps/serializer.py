@@ -21,7 +21,7 @@ class RollingPaperBoardSerializer(serializers.ModelSerializer):
     created_on = serializers.DateTimeField(read_only=True)
     updated_on = serializers.DateTimeField(read_only=True)
     opened_at = serializers.DateTimeField()
-    link = serializers.HiddenField(default=None)
+    link = serializers.CharField(read_only=True, required=False)
 
     def create(self, validated_data):
         hash_str = f"{validated_data['owner']}_{validated_data['title']}_{time.time()}".encode('utf-8')
@@ -43,17 +43,26 @@ class RollingPaperBoardSerializer(serializers.ModelSerializer):
         ]
 
 class MessageSerializer(serializers.ModelSerializer):
-    sender = UserSerializer(read_only=True)
-    receiver = UserSerializer(read_only=True)
+    sender = serializers.HiddenField(default=serializers.CurrentUserDefault())
     acc_type = serializers.IntegerField()
-    message = serializers.CharField()
+    contents = serializers.CharField()
+    rolling_paper_board = RollingPaperBoardSerializer(read_only=True)
+    link = serializers.CharField(write_only=True)
+
+    def create(self, validated_data):
+        validated_data['rolling_paper_board'] = RollingPaperBoard.objects.filter(link=validated_data['link']).first()
+        del validated_data['link']
+        message = Message.objects.create(**validated_data)
+        return message
+
 
     class Meta:
         model = Message
         fields = [
             'id',
             'sender',
-            'receiver',
-            'message'
+            'contents',
             'acc_type',
+            'rolling_paper_board',
+            'link'
         ]

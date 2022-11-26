@@ -30,7 +30,7 @@ class RollingPaperBoard(models.Model):
         db_table = 'rolling_paper_board'
 
     def __str__(self):
-        return self.name
+        return self.title
 
 class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
