@@ -33,6 +33,32 @@ class MainScenarioTest(TestCase):
         )
         return res
 
+    def 롤링페이퍼_상세_조회(self, rolling_paper_id):
+        res = self.client.get(
+            path=f'/rolling_paper/{rolling_paper_id}'
+        )
+
+        return res
+
+    def 메시지_조회(self):
+        res = self.client.get(
+            path='/message/'
+        )
+
+        return res
+
+    def 메시지_생성(self, link, message):
+
+        res = self.client.post(
+            path='/message/',
+            data={
+                'link': link,
+                'message': message
+            }
+        )
+
+        return res
+
     def test_사용자A가_롤링페이퍼보드를_만든다(self):
         self.client.force_login(self.사용자A)
 
@@ -73,6 +99,46 @@ class MainScenarioTest(TestCase):
         self.assertEqual(len(rolling_papers), 5)
 
         res = self.롤링페이퍼_생성('test_title')
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 400)
+        pass
 
+    def test_사용자B가_사용자A의_롤링페이퍼보드에_메시지를_남긴다(self):
+        self.client.force_login(self.사용자A)
+        res = self.롤링페이퍼_생성('test_title')
+        rolling_paper_board_link = res.json()['link']
+
+        self.client.force_login(self.사용자B)
+        test_message = 'test_message'
+        res = self.메시지_생성(rolling_paper_board_link, test_message)
+        self.assertEqual(res.status_code, 201)
+        res_data = res.json()
+        self.assertEqual(res_data['contents'] == test_message)
+        pass
+
+    def test_사용자A가_사용자B가_남긴_메시지를_확인한다__상세조회__예정일전(self):
+        self.test_사용자B가_사용자A의_롤링페이퍼보드에_메시지를_남긴다()
+
+        self.client.force_login(self.사용자A)
+        res = self.롤링페이퍼_조회()
+        rolling_paper_board = res.json()[0]
+        res = self.롤링페이퍼_상세_조회(rolling_paper_id=rolling_paper_board['id'])
+
+        self.assertEqual(res.status_code, 200)
+        message = res.json()[0]['messages']
+        self.assertEqual(len(message), 1)
+        self.assertEqual(message['contents'], 'wait')
+        pass
+
+    def test_사용자A가_사용자B가_남긴_메시지를_확인한다__상세조회__예정일후(self):
+        self.test_사용자B가_사용자A의_롤링페이퍼보드에_메시지를_남긴다()
+
+        self.client.force_login(self.사용자A)
+        res = self.롤링페이퍼_조회()
+        rolling_paper_board = res.json()[0]
+        res = self.롤링페이퍼_상세_조회(rolling_paper_id=rolling_paper_board['id'])
+
+        self.assertEqual(res.status_code, 200)
+        message = res.json()[0]['messages']
+        self.assertEqual(len(message), 1)
+        self.assertNotEqual(message['contents'], 'wait')
         pass
