@@ -35,7 +35,7 @@ class MainScenarioTest(TestCase):
 
     def 롤링페이퍼_상세_조회(self, rolling_paper_id):
         res = self.client.get(
-            path=f'/rolling_paper/{rolling_paper_id}'
+            path=f'/rolling_paper/{rolling_paper_id}/'
         )
 
         return res
@@ -125,9 +125,9 @@ class MainScenarioTest(TestCase):
         res = self.롤링페이퍼_상세_조회(rolling_paper_id=rolling_paper_board['id'])
 
         self.assertEqual(res.status_code, 200)
-        message = res.json()[0]['messages']
+        message = res.json()['messages']
         self.assertEqual(len(message), 1)
-        self.assertEqual(message['contents'], 'wait')
+        self.assertEqual(message[0]['contents'], 'wait')
         pass
 
     def test_사용자A가_사용자B가_남긴_메시지를_확인한다__상세조회__예정일후(self):
@@ -139,7 +139,8 @@ class MainScenarioTest(TestCase):
         res = self.롤링페이퍼_상세_조회(rolling_paper_id=rolling_paper_board['id'])
 
         self.assertEqual(res.status_code, 200)
-        message = res.json()[0]['messages']
+        print(res.json())
+        message = res.json()['messages']
         self.assertEqual(len(message), 1)
-        self.assertNotEqual(message['contents'], 'wait')
+        self.assertNotEqual(message[0]['contents'], 'wait')
         pass
